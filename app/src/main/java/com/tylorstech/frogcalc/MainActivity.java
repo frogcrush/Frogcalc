@@ -2,23 +2,25 @@ package com.tylorstech.frogcalc;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.w3c.dom.Text;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
-public class MainActivity extends FragmentActivity
+public class MainActivity extends AppCompatActivity
 {
     Button      button0,button1,button2,button3,
                 button4,button5,button6,button7,button8,button9,buttonPlus,buttonMinus,buttonTimes,
                 buttonDivide,buttonEquals,buttonPoint;
     TextView    currentCalcTextView, resultTextView;
 
-    CurrentDisplayMode displayMode = CurrentDisplayMode.Result;
+    CurrentDisplayMode displayMode = CurrentDisplayMode.EqualedResult;
     CurrentAction currentAction = CurrentAction.None;
     String calculationText = "";
     String currentInput = "";
@@ -29,7 +31,7 @@ public class MainActivity extends FragmentActivity
         make back button work to delete previous results i guess maybe kthxbai
         make that imagebutton white
         show current operator in top right
-        add support for the period/dot/whatever
+        (done) add support for the period/dot/whatever
         (done) buzz on button press
         add history by adding calculationText + result to a stack every time the equals button is pressed
         make a splash screen
@@ -51,36 +53,43 @@ public class MainActivity extends FragmentActivity
         setContentView(R.layout.activity_main);
 
         setControls();
+        currentCalcTextView.setText("");
+        resultTextView.setText("0");
+
+        getActionBar().setTitle("Standard Mode");
     }
 
     private void setControls()
     {
-        button0=findViewById(R.id.button0);
-        button1=findViewById(R.id.button1);
-        button2=findViewById(R.id.button2);
-        button3=findViewById(R.id.button3);
-        button4=findViewById(R.id.button4);
+        button0=(Button)findViewById(R.id.button0);
+        button1=(Button)findViewById(R.id.button1);
+        button2=(Button)findViewById(R.id.button2);
+        button3=(Button)findViewById(R.id.button3);
+        button4=(Button)findViewById(R.id.button4);
 
-        button5=findViewById(R.id.button5);
-        button6=findViewById(R.id.button6);
-        button7=findViewById(R.id.button7);
-        button8=findViewById(R.id.button8);
-        button9=findViewById(R.id.button9);
+        button5=(Button)findViewById(R.id.button5);
+        button6=(Button)findViewById(R.id.button6);
+        button7=(Button)findViewById(R.id.button7);
+        button8=(Button)findViewById(R.id.button8);
+        button9=(Button)findViewById(R.id.button9);
 
-        buttonPlus=findViewById(R.id.buttonPlus);
-        buttonMinus=findViewById(R.id.buttonMinus);
-        buttonTimes=findViewById(R.id.buttonTimes);
-        buttonDivide=findViewById(R.id.buttonDivide);
-        buttonPoint=findViewById(R.id.buttonPoint);
+        buttonPlus=(Button)findViewById(R.id.buttonPlus);
+        buttonMinus=(Button)findViewById(R.id.buttonMinus);
+        buttonTimes=(Button)findViewById(R.id.buttonTimes);
+        buttonDivide=(Button)findViewById(R.id.buttonDivide);
+        buttonPoint=(Button)findViewById(R.id.buttonPoint);
 
-        buttonEquals=findViewById(R.id.buttonEquals);
+        buttonEquals=(Button)findViewById(R.id.buttonEquals);
 
-        currentCalcTextView = findViewById(R.id.calculationTextView);
-        resultTextView = findViewById(R.id.resultTextView);
+        currentCalcTextView = (TextView)findViewById(R.id.calculationTextView);
+        resultTextView = (TextView) findViewById(R.id.resultTextView);
     }
 
     public void onNumberButtonClicked(View v)
     {
+        if (displayMode == CurrentDisplayMode.EqualedResult)
+            doFullClear();
+
         v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         Button sender = (Button)v;
         int num = Integer.parseInt(sender.getText().toString());
@@ -95,13 +104,13 @@ public class MainActivity extends FragmentActivity
         if (displayMode == CurrentDisplayMode.Inputting)
         {
             resultTextView.setText(currentInput);
-
         }
-        else if (displayMode == CurrentDisplayMode.Result)
+        else if (displayMode == CurrentDisplayMode.Result || displayMode == CurrentDisplayMode.EqualedResult)
         {
             DecimalFormat d = new DecimalFormat();
-            d.setMinimumFractionDigits(2);
-            d.setDecimalSeparatorAlwaysShown(true);
+            //d.setMinimumFractionDigits(2);
+            //d.setDecimalSeparatorAlwaysShown(true);
+
             resultTextView.setText(d.format(result));
         }
 
@@ -113,10 +122,8 @@ public class MainActivity extends FragmentActivity
         v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
         switch (v.getId()){
             case R.id.button_ce:
+                doFullClear();
                 displayMode = CurrentDisplayMode.Inputting;
-                currentInput = "";
-                calculationText = "";
-                result = new BigDecimal(0);
                 updateTextViews();
                 break;
 
@@ -127,35 +134,37 @@ public class MainActivity extends FragmentActivity
 
             case R.id.button_back:
                 currentInput = removeLastChar(currentInput);
+                calculationText = backspaceString(calculationText);
                 updateTextViews();
                 break;
             case R.id.buttonPlus:
                 onOperatorActionButtonClicked(CurrentAction.Adding);
-                calculationText = RemoveLastOperatorIfEndsInOperator(calculationText) +  " + ";
+                calculationText = removeLastOperatorIfEndsInOperator(calculationText) +  " + ";
                 updateTextViews();
                 break;
 
             case R.id.buttonMinus:
                 onOperatorActionButtonClicked(CurrentAction.Subtracting);
-                calculationText = RemoveLastOperatorIfEndsInOperator(calculationText) +  " - ";
+                calculationText = removeLastOperatorIfEndsInOperator(calculationText) +  " - ";
                 updateTextViews();
                 break;
 
             case R.id.buttonTimes:
                 onOperatorActionButtonClicked(CurrentAction.Multiplying);
-                calculationText = RemoveLastOperatorIfEndsInOperator(calculationText) +  " * ";
+                calculationText = removeLastOperatorIfEndsInOperator(calculationText) +  " * ";
                 updateTextViews();
                 break;
 
             case R.id.buttonDivide:
                 onOperatorActionButtonClicked(CurrentAction.Dividing);
-                calculationText = RemoveLastOperatorIfEndsInOperator(calculationText) + " / ";
+                calculationText = removeLastOperatorIfEndsInOperator(calculationText) + " / ";
                 updateTextViews();
                 break;
 
             case R.id.buttonEquals:
-                EqualResult(currentAction);
-                calculationText = RemoveLastOperatorIfEndsInOperator(calculationText) + " = ";
+                equalResult(currentAction);
+                calculationText = removeLastOperatorIfEndsInOperator(calculationText) + " = ";
+                displayMode = CurrentDisplayMode.EqualedResult;
                 updateTextViews();
                 break;
 
@@ -175,10 +184,20 @@ public class MainActivity extends FragmentActivity
         CurrentAction oldAction = currentAction;
         currentAction = action;
         if (currentInput.length() > 0)
-            EqualResult(oldAction);
+            equalResult(oldAction);
     }
 
-    public void EqualResult(CurrentAction action){
+    private void doFullClear()
+    {
+        currentInput = "";
+        calculationText = "";
+        result = new BigDecimal(0);
+        currentAction = CurrentAction.None;
+        displayMode = CurrentDisplayMode.Inputting;
+        updateTextViews();
+    }
+
+    public void equalResult(CurrentAction action){
         if (currentInput.length() > 0)
         {
             switch (action){
@@ -196,6 +215,7 @@ public class MainActivity extends FragmentActivity
                     break;
                 case Dividing:
                     result = result.divide(new BigDecimal(currentInput));
+                    break;
             }
             currentInput = "";
             displayMode = CurrentDisplayMode.Result;
@@ -215,15 +235,30 @@ public class MainActivity extends FragmentActivity
     }
 
     // #methodnamingat2:30am
-    public String RemoveLastOperatorIfEndsInOperator(String str)
+    public String removeLastOperatorIfEndsInOperator(String str)
     {
         if (str.endsWith(" "))
             str = removeLastChar(str);
-        if (str.endsWith("+") || str.endsWith("-") || str.endsWith("*") || str.endsWith("/") || str.endsWith("=")){
+        if (str.endsWith("+") || str.endsWith("-") || str.endsWith("*") || str.endsWith("/") || str.endsWith("="))
+        {
             str = removeLastChar(str);
             str = removeLastChar(str);
             //^thats just laziness
         }
         return str;
+    }
+
+    public String backspaceString(String s)
+    {
+        StringBuilder b = new StringBuilder(s);
+        for (int i = s.length(); i >= 0; i--)
+        {
+            if (!isOperator(s.charAt(i)) && s.charAt(i) != ' ')
+            {
+                b.deleteCharAt(i);
+                return b.toString();
+            }
+        }
+        return b.toString();
     }
 }

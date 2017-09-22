@@ -6,5 +6,6 @@ package com.tylorstech.frogcalc;
 
 public enum CurrentDisplayMode {
     Inputting,
-    Result
+    Result,
+    EqualedResult
 }

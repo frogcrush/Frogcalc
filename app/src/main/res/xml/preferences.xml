@@ -1,0 +1,17 @@
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+
+
+    <PreferenceCategory
+            android:title="Test">
+
+        <CheckBoxPreference
+                android:key="parent_checkbox_preference"
+                android:title="I am a test title"
+                android:summary="I am a test setting" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
