@@ -1,15 +1,10 @@
 <resources>
     <string name="app_name">Frogcalc</string>
-    <string name="title_activity_nav">NavActivity</string>
 
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="action_example">Example action</string>
-
-    <string name="action_settings">Settings</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="created_by">Created by Tylor Pater for COMP 2160.</string>
 </resources>
